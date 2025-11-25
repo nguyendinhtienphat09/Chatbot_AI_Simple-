@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập - ChatBot AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1>🔐 Đăng Nhập</h1>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="text" id="username" placeholder="Tên đăng nhập" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" placeholder="Mật khẩu" required>
+                </div>
+                <button type="submit" class="auth-btn">Đăng Nhập</button>
+            </form>
+
+            <div class="auth-links">
+                <p>Demo: <strong>admin</strong> / <strong>password</strong></p>
+                <a href="/">← Quay lại trang chủ</a>
+            </div>
+
+            <div id="message" class="message"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
+            
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    messageDiv.textContent = data.message;
+                    messageDiv.className = 'message success';
+                    setTimeout(() => window.location.href = '/', 1000);
+                } else {
+                    messageDiv.textContent = data.message;
+                    messageDiv.className = 'message error';
+                }
+            } catch (error) {
+                messageDiv.textContent = 'Lỗi kết nối server';
+                messageDiv.className = 'message error';
+            }
+        });
+    </script>
+</body>
+</html>

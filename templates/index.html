@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatBot AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="hero-section">
+            <h1>🤖 ChatBot AI</h1>
+            <p>Trải nghiệm trò chuyện với AI thông minh</p>
+            <div class="button-group">
+                <a href="/login" class="btn btn-primary">Đăng Nhập</a>
+                <button onclick="showRegister()" class="btn btn-secondary">Đăng Ký</button>
+            </div>
+        </div>
+
+        <div id="registerModal" class="modal">
+            <div class="modal-content">
+                <h2>Đăng Ký Tài Khoản</h2>
+                <form id="registerForm">
+                    <input type="text" id="regName" placeholder="Họ tên" required>
+                    <input type="text" id="regUsername" placeholder="Tên đăng nhập" required>
+                    <input type="password" id="regPassword" placeholder="Mật khẩu" required>
+                    <button type="submit" class="btn btn-primary">Đăng Ký</button>
+                </form>
+                <button onclick="closeRegister()" class="btn btn-secondary">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showRegister() {
+            document.getElementById('registerModal').style.display = 'flex';
+        }
+
+        function closeRegister() {
+            document.getElementById('registerModal').style.display = 'none';
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('regName').value,
+                username: document.getElementById('regUsername').value,
+                password: document.getElementById('regPassword').value
+            };
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                alert(data.message);
+                
+                if (data.success) {
+                    closeRegister();
+                    document.getElementById('registerForm').reset();
+                }
+            } catch (error) {
+                alert('Lỗi kết nối server');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatBot AI - {{ session.user_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>🤖 ChatBot AI</h1>
+            <div class="user-info">
+                <span>Xin chào, {{ session.user_name }}</span>
+                <a href="/logout" class="logout-btn">Đăng xuất</a>
+            </div>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot-message">
+                <div class="message-bubble">
+                    Xin chào {{ session.user_name }}! Tôi là ChatBot AI với Gemini. Tôi có thể giúp gì cho bạn?
+                    <div class="message-time" id="initialTime"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-input">
+            <form id="chatForm">
+                <input type="text" id="userInput" placeholder="Nhập tin nhắn của bạn..." autocomplete="off">
+                <button type="submit" id="sendBtn">Gửi</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('initialTime').textContent = new Date().toLocaleTimeString('vi-VN');
+        
+        document.getElementById('chatForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value.trim();
+            if (!message) return;
+            
+            // Hiển thị tin nhắn user
+            addMessage(message, 'user');
+            userInput.value = '';
+            document.getElementById('sendBtn').disabled = true;
+            
+            try {
+                const response = await fetch('/chat-api', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ message: message })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    addMessage(data.response, 'bot');
+                } else {
+                    addMessage('Lỗi: ' + data.message, 'bot');
+                }
+                
+            } catch (error) {
+                addMessage('Lỗi kết nối server', 'bot');
+            }
+            
+            document.getElementById('sendBtn').disabled = false;
+        });
+
+        function addMessage(text, sender) {
+            const chatMessages = document.getElementById('chatMessages');
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'message-bubble';
+            bubbleDiv.textContent = text;
+            
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'message-time';
+            timeDiv.textContent = new Date().toLocaleTimeString('vi-VN');
+            
+            bubbleDiv.appendChild(timeDiv);
+            messageDiv.appendChild(bubbleDiv);
+            chatMessages.appendChild(messageDiv);
+            
+            // Tự động scroll xuống
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    </script>
+</body>
+</html>
